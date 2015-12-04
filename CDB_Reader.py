@@ -50,20 +50,31 @@ class CDB_Reader(object):
         f.close()
 
     def get(self, searchKey, exhaustive=False):
+        # exhaustive must be True if keys are not sorted in ascending order
         if exhaustive:
             for i in range(len(self.mapping)):
                 nowCDB = self.mapping[i]['cdb']
-                value = nowCDB.get(searchKey)
+                targetCDB = cdb.init(nowCDB)
+                if self.repeated_keys:
+                    value = targetCDB.getall(searchKey.encode('utf-8'))
+                else:
+                    value = targetCDB.get(searchKey.encode('utf-8'))
                 if value:
                     return value
             return None
         else:
-            nowCDB = self.mapping[-1]['cdb']
+            nowCDB = self.mapping[0]['cdb']
             for i in range(1, len(self.mapping)):
                 nowKey = self.mapping[i]['key']
-                if searchKey.encode('utf-8') < nowKey:
-                    nowCDB = self.mapping[i-1]['cdb']
-                    break
+                print nowKey
+                print nowCDB
+                if self.numerical_keys:
+                    if int(searchKey) < int(nowKey):
+                        break
+                else:
+                    if searchKey.encode('utf-8') < nowKey:
+                        break
+                nowCDB = self.mapping[i]['cdb']
             targetCDB = cdb.init(nowCDB)
             if self.repeated_keys:
                 value = targetCDB.getall(searchKey.encode('utf-8'))
