@@ -33,21 +33,20 @@ class CDB_Reader(object):
                 sys.exit(1)
 
         # parse the keymap file.
-        f = codecs.open(keyMapFile, 'r', 'utf-8')
-        kvptn = re.compile(r"^(.+) ([^ ]+)$")
-        for line in iter(f.readline, ''):
-            line = line.strip()
-            if kvptn.match(line):
-                key, which_file = kvptn.match(line).groups()
-            else:
-                sys.stderr.write("malformed keymap.\n")
-                sys.exit(1)
-            CDBi = str("{}/{}".format(dbdir, which_file))
-            if os.path.isfile(CDBi):
-                self.mapping.append({'key': key, 'cdb': CDBi})
-            else:
-                sys.exit(1)
-        f.close()
+        with codecs.open(keyMapFile, 'r', 'utf-8') as f:
+            kvptn = re.compile(r"^(.+) ([^ ]+)$")
+            for line in iter(f.readline, ''):
+                line = line.strip()
+                if kvptn.match(line):
+                    key, which_file = kvptn.match(line).groups()
+                else:
+                    sys.stderr.write("malformed keymap.\n")
+                    sys.exit(1)
+                CDBi = str("{}/{}".format(dbdir, which_file))
+                if os.path.isfile(CDBi):
+                    self.mapping.append({'key': key, 'cdb': CDBi})
+                else:
+                    sys.exit(1)
 
     def get(self, searchKey, exhaustive=False):
         # exhaustive must be True if keys are not sorted in ascending order
