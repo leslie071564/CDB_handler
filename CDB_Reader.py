@@ -65,15 +65,3 @@ class CDB_Reader(object):
             value = targetCDB.getall(searchKey.encode('utf-8')) if self.repeated_keys else targetCDB.get(searchKey.encode('utf-8'))
             return value
 
-
-if __name__ == "__main__":
-    test_str = u"乗る/のる-日帰り/ひがえり+湯/ゆ|ヲ|家族/かぞく|デ|楽しむ/たのしむ"
-    PA_PAIR_REL = "/data/kohama/InferenceRuleAcquisitionDB/pa_pairs_relation_db/pa_pairs_relation.cdb.keymap"
-    SID2PA = "/data/kohama/InferenceRuleAcquisitionDB/sid2pa/sid2pa.cdb.keymap"
-
-    padb = CDB_Reader(PA_PAIR_REL)
-    stdb = CDB_Reader(SID2PA)
-    result = padb.get(test_str)
-    print result
-    key2 = "%s:" % (result.split(":")[0])
-    print stdb.get(key2.decode('utf-8'))
