@@ -34,7 +34,7 @@ class CDB_Reader(object):
 
         # parse the keymap file.
         f = codecs.open(keyMapFile, 'r', 'utf-8')
-        for line in iter(f.readlines, ''):
+        for line in iter(f.readline, ''):
             line = line.strip()
             pattern = r"^(.+) ([^ ]+)$"
             if re.match(pattern, line):
