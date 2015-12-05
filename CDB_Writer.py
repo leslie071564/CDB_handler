@@ -12,10 +12,10 @@ class CDB_Writer(object):
                  fetch=1000000, encoding='utf-8'):
         # the options.
         self.dbname = dbname
-        # This is used by CDBReader to decide which cdb include the target key.
+        # used by CDB_Reader to decide which cdb includes the query key
         self.keyMapFile = keyMapFile
         self.limit_file_size = limit_file_size
-        # This determines how often to check if size of cdb exceeds the limit.
+        # determines how often to check if current cdb size exceeds the limit
         self.fetch = fetch
         self.record_counter = 0
         self.num_of_cdbs = 0
