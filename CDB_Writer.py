@@ -56,4 +56,4 @@ class CDB_Writer(object):
                 filebase = os.path.basename(dbnamei)
                 self.keymap.write(u"{} {}\n".format(key, filebase))
         self.record_counter += 1
-        self.cdb.add(key, value)
+        self.cdb.add(key.encode(self.encoding), value)
