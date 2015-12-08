@@ -3,17 +3,19 @@ import re
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
-import os.path
+import os
 import codecs
 import cdb
 
 
 class CDB_Reader(object):
-    def __init__(self, keyMapFile, repeated_keys=False, numerical_keys=True):
+    def __init__(self, keyMapFile, repeated_keys=False, numerical_keys=True,
+                 encoding='utf-8'):
         # the options.
         self.repeated_keys = repeated_keys
         self.numerical_keys = numerical_keys
         self.mapping = []
+        self.encoding = encoding
 
         dbdir = os.path.dirname(keyMapFile)
         basename = os.path.basename(keyMapFile)
@@ -33,7 +35,7 @@ class CDB_Reader(object):
                 sys.exit(1)
 
         # parse the keymap file.
-        with codecs.open(keyMapFile, 'r', 'utf-8') as f:
+        with codecs.open(keyMapFile, 'r', self.encoding) as f:
             kvptn = re.compile(r"^(.+) ([^ ]+)$")
             for line in iter(f.readline, ''):
                 line = line.strip()
@@ -50,14 +52,15 @@ class CDB_Reader(object):
 
     def get(self, searchKey, exhaustive=False):
         # exhaustive must be True if keys are not sorted in ascending order
+        searchKey = searchKey.encode(self.encoding)
         if exhaustive:
             for i in range(len(self.mapping)):
                 nowCDB = self.mapping[i]['cdb']
                 targetCDB = cdb.init(nowCDB)
                 if self.repeated_keys:
-                    value = targetCDB.getall(searchKey.encode('utf-8'))
+                    value = targetCDB.getall(searchKey)
                 else:
-                    value = targetCDB.get(searchKey.encode('utf-8'))
+                    value = targetCDB.get(searchKey)
                 if value:
                     return value
             return None
@@ -69,12 +72,12 @@ class CDB_Reader(object):
                     if int(searchKey) < int(nowKey):
                         break
                 else:
-                    if searchKey.encode('utf-8') < nowKey:
+                    if searchKey < nowKey:
                         break
                 nowCDB = self.mapping[i]['cdb']
             targetCDB = cdb.init(nowCDB)
             if self.repeated_keys:
-                value = targetCDB.getall(searchKey.encode('utf-8'))
+                value = targetCDB.getall(searchKey)
             else:
-                value = targetCDB.get(searchKey.encode('utf-8'))
+                value = targetCDB.get(searchKey)
             return value
