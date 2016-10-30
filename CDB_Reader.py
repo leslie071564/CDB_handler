@@ -9,7 +9,7 @@ import cdb
 
 
 class CDB_Reader(object):
-    def __init__(self, keyMapFile, repeated_keys=False, numerical_keys=True,
+    def __init__(self, keyMapFile, repeated_keys=False, numerical_keys=False,
                  encoding='utf-8'):
         # the options.
         self.repeated_keys = repeated_keys
@@ -22,21 +22,26 @@ class CDB_Reader(object):
         basename = re.sub("keymap", "", basename)
 
         CDB0 = "{}/{}{}".format(dbdir, basename, "0")
+        postfix = ""
         if os.path.isfile(CDB0):
             self.mapping.append({'key': None, 'cdb': CDB0})
+        elif os.path.isfile(CDB0 + '.cdb'):
+            postfix = '.cdb'
+            CDB0 = CDB0 + postfix
 
         # check for validity
         if os.path.isfile(keyMapFile) and os.path.getsize(keyMapFile) > 0:
             CDB1 = "{}/{}{}".format(dbdir, basename, "1")
+            CDB1 += postfix
             if not os.path.isfile(CDB1):
                 sys.stderr.write("The size of the keymapfile is 0, but %s \
-                exists. The size of the keymapfile should be more than 0!\n"
-                                 % (CDB1))
+                exists. The size of the keymapfile should be more than 0!\n" % (CDB1))
                 sys.exit(1)
 
         # parse the keymap file.
         with codecs.open(keyMapFile, 'r', self.encoding) as f:
             kvptn = re.compile(r"^(.+) ([^ ]+)$")
+            count = 0
             for line in iter(f.readline, ''):
                 line = line.strip()
                 if kvptn.match(line):
@@ -44,6 +49,7 @@ class CDB_Reader(object):
                 else:
                     sys.stderr.write("malformed keymap.\n")
                     sys.exit(1)
+                count += 1
                 CDBi = str("{}/{}".format(dbdir, which_file))
                 if os.path.isfile(CDBi):
                     self.mapping.append({'key': key, 'cdb': CDBi})
@@ -72,7 +78,7 @@ class CDB_Reader(object):
                     if int(searchKey) < int(nowKey):
                         break
                 else:
-                    if searchKey < nowKey:
+                    if searchKey.encode(self.encoding) < nowKey:
                         break
                 nowCDB = self.mapping[i]['cdb']
             targetCDB = cdb.init(nowCDB)
